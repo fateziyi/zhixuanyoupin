@@ -1,6 +1,6 @@
 <template>
-  <div class="">
-    <h1>Hello Vue.js!</h1>
+  <div>
+    <h1>hello vue3!</h1>
   </div>
 </template>
 
