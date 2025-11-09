@@ -36,6 +36,9 @@ export default defineConfig(({ command, mode }) => {
     },
     //代理跨域
     server: {
+      host: 'localhost',
+      port: 3000,
+      strictPort: true,
       proxy: {
         [env.VITE_APP_BASE_API]: {
           //获取数据的服务器地址设置
