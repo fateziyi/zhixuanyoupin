@@ -1,9 +1,9 @@
 <template>
   <!-- 路由组件出口的位置 -->
-  <router-view v-slot="{ Component }">
-    <transition name="fade">
+  <router-view v-slot="{ Component, route }">
+    <transition name="fade" mode="out-in">
       <!-- 渲染layout一级路由组件的子路由 -->
-      <component :is="Component" v-if="flag" />
+      <component :is="Component" :key="route.path" v-if="flag" />
     </transition>
   </router-view>
 </template>

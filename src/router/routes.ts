@@ -115,7 +115,8 @@ export const constantRoute: RouteRecordRaw[] = [
         meta: {
           title: '品牌管理',
           hidden: false,
-          icon: 'ShoppingCartFull'
+          icon: 'ShoppingCartFull',
+          key: 'trademark'
         }
       },
       {
@@ -125,7 +126,8 @@ export const constantRoute: RouteRecordRaw[] = [
         meta: {
           title: '属性管理',
           hidden: false,
-          icon: 'Tools'
+          icon: 'Tools',
+          key: 'attr'
         }
       },
       {
@@ -135,7 +137,8 @@ export const constantRoute: RouteRecordRaw[] = [
         meta: {
           title: 'SPU管理',
           hidden: false,
-          icon: 'Tickets'
+          icon: 'Tickets',
+          key: 'spu'
         }
       },
 
@@ -146,7 +149,8 @@ export const constantRoute: RouteRecordRaw[] = [
         meta: {
           title: 'SKU管理',
           hidden: false,
-          icon: 'Memo'
+          icon: 'Memo',
+          key: 'sku'
         }
 
       }

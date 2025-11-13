@@ -17,10 +17,14 @@
                 class="table-button add-button"></el-button>
               <el-button @click="updateSpu(row)" type="success" size="mini" icon="Edit" title="修改SPU"
                 class="table-button edit-button"></el-button>
-              <el-button type="info" size="mini" icon="View" title="查看SKU列表"
-                class="table-button view-button"></el-button>
-              <el-button type="danger" size="mini" icon="Delete" title="删除SPU"
-                class="table-button delete-button"></el-button>
+              <el-button type="info" size="mini" icon="View" title="查看SKU列表" class="table-button view-button"
+                @click="findSku(row)"></el-button>
+              <el-popconfirm :title="`你确定删除${row.spuName}吗?`" width="200px" @confirm="deleteSpu(row)">
+                <template #reference>
+                  <el-button type="danger" size="mini" icon="Delete" title="删除SPU"
+                    class="table-button delete-button"></el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -33,19 +37,32 @@
       <spuForm ref="spu" v-show="scene == 1" @changeScene="changeScene" />
       <!-- 添加/修改SKU子组件 -->
       <skuForm ref="sku" v-show="scene == 2" @changeScene="changeScene" />
+      <!-- dialog对话框:展示已有的SKU数据 -->
+      <el-dialog v-model="show" title="SKU列表">
+        <el-table border :data="skuArr">
+          <el-table-column label="SKU名称" prop="skuName" align="center"></el-table-column>
+          <el-table-column label="SKU价格" prop="price" align="center"></el-table-column>
+          <el-table-column label="SKU重量" prop="weight" align="center"></el-table-column>
+          <el-table-column label="SKU图片" align="center">
+            <template #="{ row, $index }">
+              <img :src="row.skuDefaultImg" alt="" style="width: 100px; height: 100px;">
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
-import { reqHasSpu } from '@/api/product/spu'
-import type { HasSpuResponseData, Records, SpuData } from '@/api/product/spu/type'
+import { reqHasSpu, reqSkuList, reqRemoveSpu } from '@/api/product/spu'
+import type { HasSpuResponseData, Records, SpuData, SkuInfoData, SkuData } from '@/api/product/spu/type'
 // 引入分类的仓库
 import useCategoryStore from '@/store/modules/category'
 import spuForm from './spuForm.vue'
 import skuForm from './skuForm.vue'
-import { ca } from 'element-plus/es/locale'
+import { ElMessage } from 'element-plus'
 let categoryStore = useCategoryStore()
 // 场景的数据
 let scene = ref<number>(0) // 0：显示SPU列表 1：显示添加/修改SPU列表 2：显示添加SKU
@@ -61,6 +78,10 @@ let total = ref<number>(0)
 let spu = ref<any>()
 // 获取子组件实例sku
 let sku = ref<any>()
+// 存储全部的SKU数据
+let skuArr = ref<SkuData[]>([])
+// 控制SKUdialog的显示与隐藏
+let show = ref<boolean>(false)
 // 监听三级分类ID的变化
 watch(() => categoryStore.c3Id, () => {
   // 保证有三级分类ID
@@ -108,10 +129,18 @@ const updateSpu = (row: SpuData) => {
   spu.value.initHasSpuData(row)
 }
 
-// 路由组件销毁的时候，把仓库相关的数据清空
+// 路由组件销毁的时候，清理所有相关状态
 onBeforeUnmount(() => {
   // 清空仓库的数据
   categoryStore.$reset()
+  // 重置组件状态
+  scene.value = 0
+  pageNo.value = 1
+  pageSize.value = 3
+  records.value = []
+  total.value = 0
+  skuArr.value = []
+  show.value = false
 })
 
 // 添加SKU按钮的回调
@@ -119,6 +148,30 @@ const addSku = (row: SpuData) => {
   scene.value = 2
   // 调用子组件的方法初始化添加SKU的数据
   sku.value.initSkuData(categoryStore.c1Id, categoryStore.c2Id, row)
+}
+
+// 查看SKU列表的数据
+const findSku = async (row: SpuData) => {
+  let result: SkuInfoData = await reqSkuList((row.id as number))
+  if (result.code === 200) {
+    // 获取SKU列表数据
+    skuArr.value = result.data
+    show.value = true // 显示dialog
+  }
+}
+
+// 删除SPU的回调
+const deleteSpu = async (row: SpuData) => {
+  let result = await reqRemoveSpu((row.id as number))
+  if (result.code === 200) {
+    // 删除成功
+    ElMessage.success('删除成功')
+    // 获取已有的SPU数据
+    getHasSpu(records.value.length > 1 ? pageNo.value : pageNo.value - 1)
+  } else {
+    // 删除失败
+    ElMessage.error('删除失败')
+  }
 }
 </script>
 

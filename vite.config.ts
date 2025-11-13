@@ -10,7 +10,7 @@ export default defineConfig(({ command, mode }) => {
   //获取各种环境下的对应的变量
   let env = loadEnv(mode, process.cwd());
   return {
-    publicPath: 'https://gitee.com/jch1011/guiguzhenxuan',
+    base: 'https://gitee.com/jch1011/guiguzhenxuan',
     plugins: [vue(),
     createSvgIconsPlugin({
       iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
@@ -36,16 +36,13 @@ export default defineConfig(({ command, mode }) => {
     },
     //代理跨域
     server: {
-      host: 'localhost',
-      port: 3000,
-      strictPort: true,
+      host: '0.0.0.0',
+      port: 8081,
+      strictPort: false, // 允许自动选择端口
       proxy: {
         [env.VITE_APP_BASE_API]: {
-          //获取数据的服务器地址设置
           target: env.VITE_SERVE,
-          //需要代理跨域
           changeOrigin: true,
-          //路径重写
           rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), ''),
         }
       }
