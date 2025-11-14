@@ -395,7 +395,10 @@ const search = () => {
 
 // 重置按钮
 const reset = () => {
-  settingStore.refresh = !settingStore.refresh
+  // 清空搜索关键字
+  keyword.value = ''
+  // 重新获取用户列表
+  getHasUser()
 }
 
 onMounted(() => {
