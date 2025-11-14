@@ -1,38 +1,11 @@
 <template>
   <!-- 路由组件出口的位置 -->
-  <router-view v-slot="{ Component, route }">
-    <transition name="fade" mode="out-in">
-      <!-- 渲染layout一级路由组件的子路由 -->
-      <component :is="Component" :key="route.path" v-if="flag" />
-    </transition>
-  </router-view>
+  <router-view />
 </template>
 
 <script lang="ts">
-import { watch, ref, nextTick } from 'vue'
-// 获取骨架小仓库
-import useLayoutSettingStore from '../../store/modules/setting';
-
 export default {
-  name: 'Main',
-  setup() {
-    const LayoutSettingStore = useLayoutSettingStore()
-    // 控制当前组件是否销毁重建
-    const flag = ref(true)
-    // 监听仓库内部数据是否改变，如果改变则重新获取数据
-    watch(() => LayoutSettingStore.refresh, () => {
-      // 点击刷新按钮，路由组件销毁
-      flag.value = false
-      nextTick(() => {
-        // 销毁组件
-        flag.value = true
-      })
-    })
-
-    return {
-      flag
-    }
-  }
+  name: 'Main'
 }
 </script>
 

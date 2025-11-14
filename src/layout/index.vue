@@ -36,9 +36,8 @@
       class="layout_main"
       :class="{ fold: LayoutsettingStore.fold ? true : false }"
     >
-      <el-scrollbar>
-        <Main></Main>
-      </el-scrollbar>
+      <!-- 移除el-scrollbar以解决路由切换问题 -->
+      <Main></Main>
     </div>
   </div>
 </template>

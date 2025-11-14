@@ -6,6 +6,7 @@
       icon="Refresh"
       circle
       @click="updateRefresh"
+      class="header-btn"
     ></el-button>
     <el-button
       type="primary"
@@ -13,12 +14,14 @@
       icon="FullScreen"
       circle
       @click="fullScreen"
+      class="header-btn"
     ></el-button>
     <el-button
       type="primary"
       size="default"
       icon="Setting"
       circle
+      class="header-btn"
     ></el-button>
     <img
       :src="userStore.avatar"
@@ -90,10 +93,39 @@ const fullScreen = () => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .setting-container {
   display: flex;
   align-items: center;
   height: 100%;
+  
+  .header-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+    background-color: #f0f2f5;
+    border: none;
+    color: #606266;
+    
+    &:hover {
+      background-color: #409eff;
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:active {
+      transform: scale(1);
+    }
+    
+    :deep(.el-icon) {
+      font-size: 16px;
+    }
+  }
 }
 </style>
