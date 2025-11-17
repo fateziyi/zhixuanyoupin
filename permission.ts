@@ -1,66 +1,82 @@
-// 路由鉴权，项目中的路由什么条件下才能访问
-import router from '@/router'
-import nprogress from 'nprogress'
-import settings from '@/setting'
-// 引入进度条样式
+// 路由鉴权：鉴权，项目当中路由能不能被访问的权限设置
+import router from './src/router'
+import { type RouteLocationNormalized } from 'vue-router'
+// @ts-ignore 无法找到模块“nprogress”的声明文件，暂时忽略类型检查
+import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-nprogress.configure({ showSpinner: false })
-// 获取用户相关的小仓库内部的token来判断是否登录
-import pinia from '@/store'
-import useUserStore from '@/store/modules/user'
-let userStore = useUserStore(pinia)
-// 获取用户名字
-let username = userStore.username
-// 全局守卫：项目当中任意路由切换都会触发的钩子
+import setting from './src/setting'
+
+// 获取用户小仓库token数据，判断用户是否登录成功
+import useUserStore from './src/store/modules/user'
+import pinia from './src/store'
+
+NProgress.configure({ showSpinner: false })
+
+const userStore = useUserStore(pinia)
+
+// 全局守卫：项目当中人意路由切换都会触发的钩子
 // 全局前置守卫
-router.beforeEach(async (to, from, next) => {
-  document.title = `${settings.title}-${to.meta.title}` || '智选优品'
-  // 访问某一个路由之前会触发
-  // to:要访问的路由信息对象
-  // from:从哪个路由而来
-  // next:表示放行函数
-  // 开启进度条
-  nprogress.start()
-  // 获取token，判断是否登录
-  let token = userStore.token
+router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: any) => {
+  // to： 目标路由
+  // from：源路由
+  // next：路由放行函数
+
+  NProgress.start()
+
+  // 获取token，判断用户是否登录
+  const token = userStore.token
+
+  // 获取用户名字
+  const username = userStore.username
+
+  // 用户登录判断
   if (token) {
-    // 用户已登录判断
-    if (to.path == '/login') {
+    // 登录成功，访问login，重定向到首页
+    if (to.path === '/login') {
       next({ path: '/' })
     } else {
+      // 访问其余路由
       // 有用户信息
       if (username) {
         // 放行
         next()
       } else {
-        // 获取用户信息
+        // 获取用户信息后放行
         try {
           await userStore.userInfo()
-          next()
+          // 放行
+          // 如果刷新的时候是异步路由，有可能获取到用户信息、异步路由还没有加载完毕，出险空白效果
+          next({ ...to })
         } catch (error) {
-          // token过期|用户信息获取失败->重新登录
-          // 清除token
+          // token 过期：获取不到用户信息了
+          // 退出登录->用户相关的数据清空
           await userStore.userLogout()
           next({ path: '/login', query: { redirect: to.path } })
         }
       }
     }
   } else {
-    // 用户未登录判断
-    if (to.path == '/login') {
+    // 用户未登录
+    if (to.path === '/login') {
       next()
     } else {
       next({ path: '/login', query: { redirect: to.path } })
     }
   }
 })
+
 // 全局后置守卫
-router.afterEach((to, from) => {
-  // 关闭进度条
-  nprogress.done()
+router.afterEach((to: RouteLocationNormalized) => {
+  // to： 目标路由
+  // from：源路由
+  NProgress.done()
+
+  // 修改页面标题
+  document.title = `${setting.title}-${to.meta.title}`
 })
 
-// 第一项：任意路由切换实现进度条业务
-// 第二项：权限控制（路由组件鉴权）
-// 用户未登录：可以访问login，其余路由不嫩访问
-// 用户登陆成功：不可以访问login，其余的可以访问
+// 第一个问题：任意路由切换实现进度条显示 nprogress
+// 第二个问题：路由组件访问权限设置
+
+// 用户未登录：可以访问login，其余路由不能访问（重定向到 login）
+// 用户登录成功：访问 login 自动重定向到首页，其余路由可以访问

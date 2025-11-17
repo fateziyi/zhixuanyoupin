@@ -12,8 +12,15 @@
           <Sex class="sex"></Sex>
           <Age class="age"></Age>
         </div>
-        <div class="center"></div>
-        <div class="right"></div>
+        <div class="center">
+          <Map class="map"></Map>
+          <Line class="line"></Line>
+        </div>
+        <div class="right">
+          <Rank class="rank"></Rank>
+          <Year class="year"></Year>
+          <Counter class="counter"></Counter>
+        </div>
       </div>
     </div>
   </div>
@@ -26,12 +33,22 @@ import Top from "./components/top/index.vue";
 import Tourist from "./components/tourist/index.vue";
 import Sex from "./components/sex/index.vue";
 import Age from "./components/age/index.vue";
-import { ref, onMounted } from "vue";
+// 引入中间的两个子组件
+import Map from "./components/map/index.vue";
+import Line from "./components/line/index.vue";
+// 引入右侧的三个子组件
+import Year from "./components/year/index.vue";
+import Rank from "./components/rank/index.vue";
+import Counter from "./components/counter/index.vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 // 获取数字大屏展示盒子内容的DOM元素
 let screen = ref();
 
 onMounted(() => {
-  screen.value.style.transform = `scale(${getScale()}) translate(-50%, -50%)`
+  if (screen.value) {
+    screen.value.style.transform = `scale(${getScale()}) translate(-50%, -50%)`
+  }
+  window.addEventListener('resize', resizeHandler)
 })
 
 // 定义大屏缩放比例
@@ -41,10 +58,15 @@ function getScale(w = 1920, h = 1080) {
   return Math.min(ww, wh);
 }
 
-// 监听视口的变化
-window.onresize = () => {
-  screen.value.style.transform = `scale(${getScale()}) translate(-50%, -50%)`
+function resizeHandler() {
+  if (screen.value) {
+    screen.value.style.transform = `scale(${getScale()}) translate(-50%, -50%)`
+  }
 }
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeHandler)
+})
 </script>
 
 <style scoped lang="scss">
@@ -72,6 +94,25 @@ window.onresize = () => {
       width: 100%;
       height: 100%;
 
+      .right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-left: 20px;
+
+        .rank {
+          flex: 1.5;
+        }
+
+        .year {
+          flex: 1;
+        }
+
+        .counter {
+          flex: 1;
+        }
+      }
+
       .left {
         flex: 1;
         height: 1040px;
@@ -93,10 +134,37 @@ window.onresize = () => {
 
       .center {
         flex: 2;
+        display: flex;
+        flex-direction: column;
+
+        .map {
+          flex: 3;
+        }
+
+        .line {
+          flex: 1;
+        }
       }
 
       .right {
-        flex: 1
+        flex: 1;
+        height: 1040px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 12px;
+
+        .rank {
+          flex: 1.2;
+        }
+
+        .year {
+          flex: 1;
+        }
+
+        .counter {
+          flex: 1;
+        }
       }
     }
   }

@@ -53,6 +53,11 @@ export const constantRoute: RouteRecordRaw[] = [
       icon: 'DataLine'
     }
   },
+
+]
+
+// 异步路由
+export const asyncRoute = [
   {
     path: '/acl',
     component: () => import('@/layout/index.vue'),
@@ -157,12 +162,15 @@ export const constantRoute: RouteRecordRaw[] = [
 
     ]
   },
+]
+
+// 任意路由
+export const anyRoute = [
   {
     path: '/:pathMatch(.*)*',
     redirect: '/404',
-    name: 'Any',
+    name: 'any',
     meta: {
-      title: '任意路由',
       hidden: true
     }
   }
